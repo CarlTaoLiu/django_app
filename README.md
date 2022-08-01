@@ -174,7 +174,7 @@ python manage.py migrate
 
 **在admin.py中注册两个模块**
 
-```
+```python
 #Users 取消User，Group的显示
 from django.contrib import admin
 from .models import Users
@@ -192,4 +192,50 @@ admin.site.register(Companies)
 
 ```
 
-python培训第三讲 1:00:00
+**配置api**
+
+```python
+#django_app\django_app\urls.py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include(('apps.urls', 'api')))
+]
+```
+
+```python
+#django_app\apps\urls.py
+from django.urls import path
+
+from apps.modules.companies.views import get_companies
+
+urlpatterns = [
+    path('companies', get_companies),
+]
+```
+
+**创建获取companies的api**
+
+```python
+#django_app\apps\modules\companies\views.py
+from django.http import JsonResponse
+from .models import Companies
+
+# Create your views here.
+def get_companies(request):
+    companies = Companies.objects.all()
+    
+    return JsonResponse({
+        "code": 200,
+        "message": "success",
+        "data": [
+            {
+                "name": company.name,
+                "email": company.email
+            } for company in companies
+        ]
+    })
+```
+
